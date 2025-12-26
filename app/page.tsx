@@ -6,12 +6,15 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { UrlForm } from "@/components/url-form";
 import { UrlsTable } from "@/components/urls-table";
+import { UsersTable } from "@/components/users-table";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GridPattern } from "@/components/ui/grid-pattern";
 import { motion } from "framer-motion";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { cn } from "@/lib/utils";
 import { useLocalStorageMigration } from "@/hooks/use-local-storage-migration";
+import { Link2, Users } from "lucide-react";
 
 const ease = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
@@ -127,14 +130,35 @@ export default function HomePage() {
           )}
         </motion.div>
 
-        {/* URLs Table - Last */}
+        {/* Tables Section - Last */}
         {session && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.7, ease }}
           >
-            <UrlsTable refreshTrigger={refreshTrigger} />
+            {session.user?.role === "ADMIN" ? (
+              <Tabs defaultValue="urls" className="w-full">
+                <TabsList className="grid w-full max-w-[400px] mx-auto grid-cols-2 mb-6 rounded-2xl h-11 p-1">
+                  <TabsTrigger value="urls" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <Link2 className="w-4 h-4" />
+                    Liên kết
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    <Users className="w-4 h-4" />
+                    Người dùng
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="urls" className="mt-0">
+                  <UrlsTable refreshTrigger={refreshTrigger} />
+                </TabsContent>
+                <TabsContent value="users" className="mt-0">
+                  <UsersTable />
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <UrlsTable refreshTrigger={refreshTrigger} />
+            )}
           </motion.div>
         )}
       </main>

@@ -13,7 +13,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -43,7 +49,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { QRCodeDisplay } from "./qr-code-display";
@@ -93,18 +100,20 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
   const [selectedUrl, setSelectedUrl] = useState<{ id: string; shortCode: string } | null>(null);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState<Pagination | null>(null);
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
+  const [initialLoaded, setInitialLoaded] = useState(false);
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
-  const fetchUrls = async (pageNum: number = page) => {
+  const fetchUrls = async (pageNum: number = page, pageLimit: number = limit) => {
     try {
       setIsLoading(true);
-      const res = await fetch(`/api/urls?page=${pageNum}&limit=${limit}`);
+      const res = await fetch(`/api/urls?page=${pageNum}&limit=${pageLimit}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setUrls(data.urls || []);
       setPagination(data.pagination || null);
+      if (!initialLoaded) setInitialLoaded(true);
     } catch {
       toast.error("Không thể tải danh sách liên kết");
     } finally {
@@ -182,12 +191,14 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
     return url.length > maxLength ? url.substring(0, maxLength) + "..." : url;
   };
 
-  if (isLoading) {
+  // Show skeleton only on initial load, not on pagination/refresh
+  if (isLoading && !initialLoaded) {
     return (
-      <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full rounded-2xl" />
-        ))}
+      <div className="rounded-3xl border bg-background p-8">
+        <div className="flex items-center justify-center gap-3 text-muted-foreground">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span>Đang tải danh sách liên kết...</span>
+        </div>
       </div>
     );
   }
@@ -206,9 +217,16 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
     );
   }
 
+  const handleLimitChange = (value: string) => {
+    const newLimit = parseInt(value);
+    setLimit(newLimit);
+    setPage(1);
+    fetchUrls(1, newLimit);
+  };
+
   return (
     <>
-      <div className="rounded-3xl border bg-background overflow-x-auto">
+      <div className="rounded-3xl border bg-background overflow-x-auto relative">
         <Table className="border-collapse [&_th]:border-b [&_th]:border-r [&_th:last-child]:border-r-0 [&_td]:border-b [&_td]:border-r [&_td:last-child]:border-r-0 [&_tr:last-child_td]:border-b-0">
           <TableHeader>
             <TableRow className="bg-card hover:bg-transparent">
@@ -454,57 +472,84 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
             ))}
           </TableBody>
         </Table>
+        
+        {/* Loading Overlay */}
+        {isLoading && initialLoaded && (
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center rounded-3xl z-10">
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Đang tải...</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
+      {pagination && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
-          <p className="text-sm text-muted-foreground">
-            Hiển thị {((page - 1) * limit) + 1} - {Math.min(page * limit, pagination.total)} trong số {pagination.total} liên kết
-          </p>
-          <div className="flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-xl"
-              onClick={() => { setPage(1); fetchUrls(1); }}
-              disabled={page === 1 || isLoading}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-xl"
-              onClick={() => { setPage(p => p - 1); fetchUrls(page - 1); }}
-              disabled={page === 1 || isLoading}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center gap-1 px-2">
-              <span className="text-sm font-medium">{page}</span>
-              <span className="text-sm text-muted-foreground">/</span>
-              <span className="text-sm text-muted-foreground">{pagination.totalPages}</span>
+          <div className="flex items-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              Hiển thị {((page - 1) * limit) + 1} - {Math.min(page * limit, pagination.total)} trong số {pagination.total} liên kết
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Số dòng:</span>
+              <Select value={limit.toString()} onValueChange={handleLimitChange}>
+                <SelectTrigger className="w-[80px] h-8 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="10" className="rounded-lg">10</SelectItem>
+                  <SelectItem value="20" className="rounded-lg">20</SelectItem>
+                  <SelectItem value="50" className="rounded-lg">50</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-xl"
-              onClick={() => { setPage(p => p + 1); fetchUrls(page + 1); }}
-              disabled={page === pagination.totalPages || isLoading}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-xl"
-              onClick={() => { setPage(pagination.totalPages); fetchUrls(pagination.totalPages); }}
-              disabled={page === pagination.totalPages || isLoading}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
           </div>
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 rounded-xl"
+                onClick={() => { setPage(1); fetchUrls(1); }}
+                disabled={page === 1 || isLoading}
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 rounded-xl"
+                onClick={() => { setPage(p => p - 1); fetchUrls(page - 1); }}
+                disabled={page === 1 || isLoading}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-1 px-2">
+                <span className="text-sm font-medium">{page}</span>
+                <span className="text-sm text-muted-foreground">/</span>
+                <span className="text-sm text-muted-foreground">{pagination.totalPages}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 rounded-xl"
+                onClick={() => { setPage(p => p + 1); fetchUrls(page + 1); }}
+                disabled={page === pagination.totalPages || isLoading}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 rounded-xl"
+                onClick={() => { setPage(pagination.totalPages); fetchUrls(pagination.totalPages); }}
+                disabled={page === pagination.totalPages || isLoading}
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
