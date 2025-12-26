@@ -226,8 +226,8 @@ export function QRCodeDisplay({ url, shortCode }: QRCodeDisplayProps) {
             <Input
               type="number"
               value={exportSize}
-              onChange={(e) => setExportSize(Math.max(100, Math.min(2048, parseInt(e.target.value) || 512)))}
-              min={100}
+              onChange={(e) => setExportSize(parseInt(e.target.value) || 512)}
+              min={1}
               max={2048}
               className="rounded-xl"
             />
