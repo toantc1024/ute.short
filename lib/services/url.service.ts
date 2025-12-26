@@ -82,31 +82,85 @@ export async function createUrl({ originalUrl, customCode, userId }: CreateUrlIn
   });
 }
 
-export async function getUrlsByUserId(userId: string) {
-  return prisma.url.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: {
-        select: { visits: true },
-      },
-    },
-  });
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
 }
 
-// Admin: Get all URLs
-export async function getAllUrls() {
-  return prisma.url.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, email: true, image: true },
+export interface PaginatedResult<T> {
+  data: T[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export async function getUrlsByUserId(
+  userId: string, 
+  { page = 1, limit = 10 }: PaginationParams = {}
+): Promise<PaginatedResult<any>> {
+  const skip = (page - 1) * limit;
+  
+  const [urls, total] = await Promise.all([
+    prisma.url.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: { visits: true },
+        },
       },
-      _count: {
-        select: { visits: true },
-      },
+      skip,
+      take: limit,
+    }),
+    prisma.url.count({ where: { userId } }),
+  ]);
+
+  return {
+    data: urls,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     },
-  });
+  };
+}
+
+// Admin: Get all URLs with pagination
+export async function getAllUrls(
+  { page = 1, limit = 10 }: PaginationParams = {}
+): Promise<PaginatedResult<any>> {
+  const skip = (page - 1) * limit;
+  
+  const [urls, total] = await Promise.all([
+    prisma.url.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+        _count: {
+          select: { visits: true },
+        },
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.url.count(),
+  ]);
+
+  return {
+    data: urls,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 }
 
 export async function getUrlById(id: string, userId: string) {

@@ -39,7 +39,11 @@ import {
   Edit2,
   Check,
   X,
-  User
+  User,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight
 } from "lucide-react";
 import { toast } from "sonner";
 import { QRCodeDisplay } from "./qr-code-display";
@@ -70,6 +74,13 @@ interface UrlsTableProps {
   delayLoad?: boolean;
 }
 
+interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps) {
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
@@ -80,15 +91,20 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
   const [editValue, setEditValue] = useState("");
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [selectedUrl, setSelectedUrl] = useState<{ id: string; shortCode: string } | null>(null);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const limit = 10;
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
-  const fetchUrls = async () => {
+  const fetchUrls = async (pageNum: number = page) => {
     try {
-      const res = await fetch("/api/urls");
+      setIsLoading(true);
+      const res = await fetch(`/api/urls?page=${pageNum}&limit=${limit}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       setUrls(data.urls || []);
+      setPagination(data.pagination || null);
     } catch {
       toast.error("Không thể tải danh sách liên kết");
     } finally {
@@ -99,8 +115,15 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
   useEffect(() => {
     // Don't fetch while animation is still running
     if (!delayLoad) {
-      fetchUrls();
+      // Reset to page 1 when refresh is triggered (new URL created)
+      if (refreshTrigger > 0) {
+        setPage(1);
+        fetchUrls(1);
+      } else {
+        fetchUrls();
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger, delayLoad]);
 
   const copyToClipboard = async (shortCode: string) => {
@@ -349,7 +372,7 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
                         </TooltipTrigger>
                         <TooltipContent>QR Code</TooltipContent>
                       </Tooltip>
-                      <DialogContent className="flex overflow-auto h-[90vh] md:h-[calc(100vh-8rem)]  min-w-[calc(50vw)] flex-col gap-0 p-0 rounded-3xl overflow-hidden">
+                      <DialogContent className="flex overflow-auto h-[90vh] md:h-[calc(100vh-8rem)]  min-w-[calc(80vw)] flex-col gap-0 p-0 rounded-3xl overflow-hidden">
                         <DialogHeader className="px-5 py-4 border-b shrink-0">
                           <DialogTitle>Tùy chỉnh QR Code</DialogTitle>
                           <DialogDescription className="font-mono text-xs">
@@ -432,6 +455,58 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
+          <p className="text-sm text-muted-foreground">
+            Hiển thị {((page - 1) * limit) + 1} - {Math.min(page * limit, pagination.total)} trong số {pagination.total} liên kết
+          </p>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-xl"
+              onClick={() => { setPage(1); fetchUrls(1); }}
+              disabled={page === 1 || isLoading}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-xl"
+              onClick={() => { setPage(p => p - 1); fetchUrls(page - 1); }}
+              disabled={page === 1 || isLoading}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-1 px-2">
+              <span className="text-sm font-medium">{page}</span>
+              <span className="text-sm text-muted-foreground">/</span>
+              <span className="text-sm text-muted-foreground">{pagination.totalPages}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-xl"
+              onClick={() => { setPage(p => p + 1); fetchUrls(page + 1); }}
+              disabled={page === pagination.totalPages || isLoading}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-xl"
+              onClick={() => { setPage(pagination.totalPages); fetchUrls(pagination.totalPages); }}
+              disabled={page === pagination.totalPages || isLoading}
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Analytics Dialog */}
       {selectedUrl && (

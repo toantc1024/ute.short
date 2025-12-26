@@ -3,16 +3,24 @@ import { requireAuth, isAdmin } from "@/lib/auth";
 import { createUrl, getUrlsByUserId, getAllUrls, validateShortCode as checkShortCodeDB } from "@/lib/services/url.service";
 import { validateUrl, validateShortCode } from "@/lib/validations/url";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth();
     
-    // Admin can see all URLs, regular users see only their own
-    const urls = isAdmin(user) 
-      ? await getAllUrls() 
-      : await getUrlsByUserId(user.id);
+    // Get pagination params from URL
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10")));
     
-    return NextResponse.json({ urls });
+    // Admin can see all URLs, regular users see only their own
+    const result = isAdmin(user) 
+      ? await getAllUrls({ page, limit }) 
+      : await getUrlsByUserId(user.id, { page, limit });
+    
+    return NextResponse.json({ 
+      urls: result.data, 
+      pagination: result.pagination 
+    });
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Vui lòng đăng nhập" }, { status: 401 });
