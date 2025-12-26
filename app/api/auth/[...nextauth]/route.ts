@@ -37,7 +37,7 @@ export const authOptions: AuthOptions = {
   pages: {
     error: "/auth/error",
   },
-  secret: process.env.JWT_AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
