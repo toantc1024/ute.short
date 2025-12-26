@@ -108,6 +108,9 @@ export async function getUrlsByUserId(
       where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
         _count: {
           select: { visits: true },
         },

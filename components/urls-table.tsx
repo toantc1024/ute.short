@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -194,10 +195,34 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
   // Show skeleton only on initial load, not on pagination/refresh
   if (isLoading && !initialLoaded) {
     return (
-      <div className="rounded-3xl border bg-background p-8">
-        <div className="flex items-center justify-center gap-3 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Đang tải danh sách liên kết...</span>
+      <div className="rounded-3xl border bg-background overflow-hidden">
+        <div className="bg-card px-4 py-3 border-b">
+          <div className="flex gap-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </div>
+        <div className="divide-y">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="px-4 py-3 flex items-center gap-4">
+              <Skeleton className="h-8 w-24 rounded-xl" />
+              <Skeleton className="h-4 flex-1 max-w-[300px]" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-7 w-7 rounded-full" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-24" />
+              <div className="flex gap-1">
+                <Skeleton className="h-8 w-8 rounded-xl" />
+                <Skeleton className="h-8 w-8 rounded-xl" />
+                <Skeleton className="h-8 w-8 rounded-xl" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -232,7 +257,7 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
             <TableRow className="bg-card hover:bg-transparent">
               <TableHead className="text-center w-[220px]">Liên kết rút gọn</TableHead>
               <TableHead>URL gốc</TableHead>
-              {isAdmin && <TableHead className="text-center w-[150px]">Người tạo</TableHead>}
+              <TableHead className="text-center w-[150px]">Người tạo</TableHead>
               <TableHead className="text-center w-[120px]">Lượt truy cập</TableHead>
               <TableHead className="text-center w-[140px]">Ngày tạo</TableHead>
               <TableHead className="text-center w-[180px]">Thao tác</TableHead>
@@ -297,42 +322,40 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
                     </Tooltip>
                   )}
                 </TableCell>
-                {isAdmin && (
-                  <TableCell>
-                    <div className="flex items-center justify-center gap-2">
-                      {url.user ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              {url.user.image ? (
-                                <Image
-                                  src={url.user.image}
-                                  alt={url.user.name || "User"}
-                                  width={28}
-                                  height={28}
-                                  className="rounded-full"
-                                />
-                              ) : (
-                                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                                  <User className="w-4 h-4 text-muted-foreground" />
-                                </div>
-                              )}
-                              <span className="text-sm truncate max-w-[80px]">
-                                {url.user.name?.split(" ").slice(-1)[0] || "User"}
-                              </span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{url.user.name}</p>
-                            <p className="text-xs text-muted-foreground">{url.user.email}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">—</span>
-                      )}
-                    </div>
-                  </TableCell>
-                )}
+                <TableCell>
+                  <div className="flex items-center justify-center gap-2">
+                    {url.user ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-2">
+                            {url.user.image ? (
+                              <Image
+                                src={url.user.image}
+                                alt={url.user.name || "User"}
+                                width={28}
+                                height={28}
+                                className="rounded-full"
+                              />
+                            ) : (
+                              <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                                <User className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <span className="text-sm truncate max-w-[80px]">
+                              {url.user.name?.split(" ").slice(-1)[0] || "User"}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{url.user.name}</p>
+                          <p className="text-xs text-muted-foreground">{url.user.email}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">—</span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center">
                     <Tooltip>

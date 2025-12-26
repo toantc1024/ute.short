@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -118,13 +119,32 @@ export function UsersTable() {
     fetchUsers(1, newLimit);
   };
 
-  // Initial loading state
+  // Initial loading state - show skeleton
   if (isLoading && !initialLoaded) {
     return (
-      <div className="rounded-3xl border bg-background p-8">
-        <div className="flex items-center justify-center gap-3 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Đang tải danh sách người dùng...</span>
+      <div className="rounded-3xl border bg-background overflow-hidden">
+        <div className="bg-card px-4 py-3 border-b">
+          <div className="flex gap-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </div>
+        <div className="divide-y">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="px-4 py-3 flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-9 w-9 rounded-full" />
+                <Skeleton className="h-4 w-28" />
+              </div>
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-8 w-24 rounded-xl" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
         </div>
       </div>
     );

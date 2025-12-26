@@ -24,9 +24,11 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        // Fetch role from database
+      }
+      // Always fetch role from database to keep it up-to-date
+      if (token.id) {
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: token.id as string },
           select: { role: true },
         });
         token.role = dbUser?.role || "USER";
