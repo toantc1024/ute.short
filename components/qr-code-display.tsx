@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface QRCodeDisplayProps {
   url: string;
@@ -139,6 +140,11 @@ export function QRCodeDisplay({ url, shortCode }: QRCodeDisplayProps) {
   const handleDownload = useCallback(async () => {
     if (!qrCodeRef.current) return;
 
+    if (exportSize < 100) {
+      toast.error("Ít nhất 100px");
+      return;
+    }
+
     const exportQR = new QRCodeStyling({
       width: exportSize,
       height: exportSize,
@@ -226,7 +232,7 @@ export function QRCodeDisplay({ url, shortCode }: QRCodeDisplayProps) {
             <Input
               type="number"
               value={exportSize}
-              onChange={(e) => setExportSize(parseInt(e.target.value) || 512)}
+              onChange={(e) => setExportSize(parseInt(e.target.value))}
               min={1}
               max={2048}
               className="rounded-xl"
