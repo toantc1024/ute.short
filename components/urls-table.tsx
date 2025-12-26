@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -46,7 +45,6 @@ import {
   Edit2,
   Check,
   X,
-  User,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -196,34 +194,53 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
   if (isLoading && !initialLoaded) {
     return (
       <div className="rounded-3xl border bg-background overflow-hidden">
-        <div className="bg-card px-4 py-3 border-b">
-          <div className="flex gap-4">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-        </div>
-        <div className="divide-y">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="px-4 py-3 flex items-center gap-4">
-              <Skeleton className="h-8 w-24 rounded-xl" />
-              <Skeleton className="h-4 flex-1 max-w-[300px]" />
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-7 w-7 rounded-full" />
-                <Skeleton className="h-4 w-20" />
-              </div>
-              <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-4 w-24" />
-              <div className="flex gap-1">
-                <Skeleton className="h-8 w-8 rounded-xl" />
-                <Skeleton className="h-8 w-8 rounded-xl" />
-                <Skeleton className="h-8 w-8 rounded-xl" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <Table className="border-collapse [&_th]:border-b [&_th]:border-r [&_th:last-child]:border-r-0 [&_td]:border-b [&_td]:border-r [&_td:last-child]:border-r-0 [&_tr:last-child_td]:border-b-0">
+          <TableHeader>
+            <TableRow className="bg-card hover:bg-transparent">
+              <TableHead className="text-center w-[220px]"><Skeleton className="h-4 w-28 mx-auto" /></TableHead>
+              <TableHead><Skeleton className="h-4 w-16" /></TableHead>
+              <TableHead className="text-center w-[150px]"><Skeleton className="h-4 w-20 mx-auto" /></TableHead>
+              <TableHead className="text-center w-[120px]"><Skeleton className="h-4 w-24 mx-auto" /></TableHead>
+              <TableHead className="text-center w-[140px]"><Skeleton className="h-4 w-16 mx-auto" /></TableHead>
+              <TableHead className="text-center w-[180px]"><Skeleton className="h-4 w-16 mx-auto" /></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-7 w-20 rounded-xl" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-full max-w-[250px]" />
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-7 w-16 rounded-xl" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center gap-1">
+                    <Skeleton className="h-8 w-8 rounded-xl" />
+                    <Skeleton className="h-8 w-8 rounded-xl" />
+                    <Skeleton className="h-8 w-8 rounded-xl" />
+                    <Skeleton className="h-8 w-8 rounded-xl" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   }
@@ -323,28 +340,13 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
                   )}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center">
                     {url.user ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div className="flex items-center gap-2">
-                            {url.user.image ? (
-                              <Image
-                                src={url.user.image}
-                                alt={url.user.name || "User"}
-                                width={28}
-                                height={28}
-                                className="rounded-full"
-                              />
-                            ) : (
-                              <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                                <User className="w-4 h-4 text-muted-foreground" />
-                              </div>
-                            )}
-                            <span className="text-sm truncate max-w-[80px]">
-                              {url.user.name?.split(" ").slice(-1)[0] || "User"}
-                            </span>
-                          </div>
+                          <span className="text-sm truncate max-w-[120px] cursor-default">
+                            {url.user.name || url.user.email || "User"}
+                          </span>
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{url.user.name}</p>

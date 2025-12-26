@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -11,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -26,9 +24,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { 
-  User,
-  Shield,
-  ShieldCheck,
   Link2,
   ChevronLeft,
   ChevronRight,
@@ -123,29 +118,46 @@ export function UsersTable() {
   if (isLoading && !initialLoaded) {
     return (
       <div className="rounded-3xl border bg-background overflow-hidden">
-        <div className="bg-card px-4 py-3 border-b">
-          <div className="flex gap-4">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-4 w-40" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-16" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-        </div>
-        <div className="divide-y">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="px-4 py-3 flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-9 w-9 rounded-full" />
-                <Skeleton className="h-4 w-28" />
-              </div>
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-8 w-24 rounded-xl" />
-              <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-4 w-24" />
-            </div>
-          ))}
-        </div>
+        <Table className="border-collapse [&_th]:border-b [&_th]:border-r [&_th:last-child]:border-r-0 [&_td]:border-b [&_td]:border-r [&_td:last-child]:border-r-0 [&_tr:last-child_td]:border-b-0">
+          <TableHeader>
+            <TableRow className="bg-card hover:bg-transparent">
+              <TableHead className="w-[250px]"><Skeleton className="h-4 w-24" /></TableHead>
+              <TableHead className="text-center w-[180px]"><Skeleton className="h-4 w-12 mx-auto" /></TableHead>
+              <TableHead className="text-center w-[120px]"><Skeleton className="h-4 w-16 mx-auto" /></TableHead>
+              <TableHead className="text-center w-[100px]"><Skeleton className="h-4 w-14 mx-auto" /></TableHead>
+              <TableHead className="text-center w-[140px]"><Skeleton className="h-4 w-16 mx-auto" /></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-4 w-32" />
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-8 w-20 rounded-xl" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-4 w-8" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center">
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   }
@@ -154,7 +166,7 @@ export function UsersTable() {
     return (
       <div className="text-center py-16">
         <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-muted flex items-center justify-center">
-          <User className="w-10 h-10 text-muted-foreground" />
+          <Link2 className="w-10 h-10 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold mb-2">Chưa có người dùng nào</h3>
         <p className="text-muted-foreground">
@@ -181,24 +193,7 @@ export function UsersTable() {
             {users.map((user) => (
               <TableRow key={user.id} className="group">
                 <TableCell>
-                  <div className="flex items-center gap-3">
-                    {user.image ? (
-                      <Image
-                        src={user.image}
-                        alt={user.name || "User"}
-                        width={36}
-                        height={36}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-                        <User className="w-5 h-5 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex flex-col">
-                      <span className="font-medium">{user.name || "—"}</span>
-                    </div>
-                  </div>
+                  <span className="font-medium">{user.name || "—"}</span>
                 </TableCell>
                 <TableCell>
                   <Tooltip>
@@ -220,36 +215,21 @@ export function UsersTable() {
                       disabled={updatingId === user.id}
                     >
                       <SelectTrigger 
-                        className={`w-[110px] h-8 rounded-xl ${
+                        className={`w-[90px] h-8 rounded-xl ${
                           user.role === "ADMIN" 
                             ? "bg-primary/10 text-primary border-primary/30" 
                             : "bg-muted"
                         }`}
                       >
-                        <div className="flex items-center gap-1.5">
-                          {updatingId === user.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : user.role === "ADMIN" ? (
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                          ) : (
-                            <Shield className="w-3.5 h-3.5" />
-                          )}
+                        {updatingId === user.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
                           <SelectValue />
-                        </div>
+                        )}
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
-                        <SelectItem value="USER" className="rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
-                            <span>User</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="ADMIN" className="rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck className="w-4 h-4" />
-                            <span>Admin</span>
-                          </div>
-                        </SelectItem>
+                        <SelectItem value="USER" className="rounded-lg">User</SelectItem>
+                        <SelectItem value="ADMIN" className="rounded-lg">Admin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

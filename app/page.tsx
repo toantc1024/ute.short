@@ -139,12 +139,12 @@ export default function HomePage() {
           >
             {session.user?.role === "ADMIN" ? (
               <Tabs defaultValue="urls" className="w-full">
-                <TabsList className="grid w-full max-w-[400px] mx-auto grid-cols-2 mb-6 rounded-2xl h-11 p-1">
-                  <TabsTrigger value="urls" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <TabsList className="grid w-full max-w-[400px] mx-auto grid-cols-2 mb-6 rounded-3xl h-12 p-1.5 bg-background border border-border">
+                  <TabsTrigger value="urls" className="rounded-2xl flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Link2 className="w-4 h-4" />
                     Liên kết
                   </TabsTrigger>
-                  <TabsTrigger value="users" className="rounded-xl flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <TabsTrigger value="users" className="rounded-2xl flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     <Users className="w-4 h-4" />
                     Người dùng
                   </TabsTrigger>
