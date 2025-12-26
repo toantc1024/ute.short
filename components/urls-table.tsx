@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -36,7 +38,8 @@ import {
   BarChart3,
   Edit2,
   Check,
-  X
+  X,
+  User
 } from "lucide-react";
 import { toast } from "sonner";
 import { QRCodeDisplay } from "./qr-code-display";
@@ -45,6 +48,13 @@ import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 
+interface UrlUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image?: string | null;
+}
+
 interface Url {
   id: string;
   shortCode: string;
@@ -52,6 +62,7 @@ interface Url {
   visitCount: number;
   createdAt: string;
   _count?: { visits: number };
+  user?: UrlUser | null;
 }
 
 interface UrlsTableProps {
@@ -60,6 +71,8 @@ interface UrlsTableProps {
 }
 
 export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps) {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN";
   const [urls, setUrls] = useState<Url[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -178,6 +191,7 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
             <TableRow className="bg-card hover:bg-transparent">
               <TableHead className="text-center w-[220px]">Liên kết rút gọn</TableHead>
               <TableHead>URL gốc</TableHead>
+              {isAdmin && <TableHead className="text-center w-[150px]">Người tạo</TableHead>}
               <TableHead className="text-center w-[120px]">Lượt truy cập</TableHead>
               <TableHead className="text-center w-[140px]">Ngày tạo</TableHead>
               <TableHead className="text-center w-[180px]">Thao tác</TableHead>
@@ -242,6 +256,42 @@ export function UrlsTable({ refreshTrigger, delayLoad = false }: UrlsTableProps)
                     </Tooltip>
                   )}
                 </TableCell>
+                {isAdmin && (
+                  <TableCell>
+                    <div className="flex items-center justify-center gap-2">
+                      {url.user ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              {url.user.image ? (
+                                <Image
+                                  src={url.user.image}
+                                  alt={url.user.name || "User"}
+                                  width={28}
+                                  height={28}
+                                  className="rounded-full"
+                                />
+                              ) : (
+                                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                                  <User className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="text-sm truncate max-w-[80px]">
+                                {url.user.name?.split(" ").slice(-1)[0] || "User"}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{url.user.name}</p>
+                            <p className="text-xs text-muted-foreground">{url.user.email}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
+                      )}
+                    </div>
+                  </TableCell>
+                )}
                 <TableCell>
                   <div className="flex items-center justify-center">
                     <Tooltip>

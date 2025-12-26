@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth";
-import { getUrlById, updateUrl, deleteUrl, validateShortCode as checkShortCodeDB } from "@/lib/services/url.service";
+import { requireAuth, isAdmin } from "@/lib/auth";
+import { 
+  getUrlById, 
+  getUrlByIdAdmin, 
+  updateUrl, 
+  updateUrlAdmin, 
+  deleteUrl, 
+  deleteUrlAdmin, 
+  validateShortCode as checkShortCodeDB 
+} from "@/lib/services/url.service";
 import { validateUrl, validateShortCode } from "@/lib/validations/url";
 
 interface RouteContext {
@@ -12,7 +20,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
     const user = await requireAuth();
     const { id } = await context.params;
     
-    const url = await getUrlById(id, user.id);
+    // Admin can view any URL, regular users can only view their own
+    const url = isAdmin(user) 
+      ? await getUrlByIdAdmin(id)
+      : await getUrlById(id, user.id);
     
     if (!url) {
       return NextResponse.json({ error: "Không tìm thấy URL" }, { status: 404 });
@@ -65,10 +76,14 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: "Không có dữ liệu để cập nhật" }, { status: 400 });
     }
 
-    const result = await updateUrl(id, user.id, updateData);
-    
-    if (result.count === 0) {
-      return NextResponse.json({ error: "Không tìm thấy URL hoặc không có quyền" }, { status: 404 });
+    // Admin can update any URL, regular users can only update their own
+    if (isAdmin(user)) {
+      await updateUrlAdmin(id, updateData);
+    } else {
+      const result = await updateUrl(id, user.id, updateData);
+      if (result.count === 0) {
+        return NextResponse.json({ error: "Không tìm thấy URL hoặc không có quyền" }, { status: 404 });
+      }
     }
 
     return NextResponse.json({ success: true });
@@ -86,10 +101,14 @@ export async function DELETE(req: NextRequest, context: RouteContext) {
     const user = await requireAuth();
     const { id } = await context.params;
 
-    const result = await deleteUrl(id, user.id);
-    
-    if (result.count === 0) {
-      return NextResponse.json({ error: "Không tìm thấy URL hoặc không có quyền" }, { status: 404 });
+    // Admin can delete any URL, regular users can only delete their own
+    if (isAdmin(user)) {
+      await deleteUrlAdmin(id);
+    } else {
+      const result = await deleteUrl(id, user.id);
+      if (result.count === 0) {
+        return NextResponse.json({ error: "Không tìm thấy URL hoặc không có quyền" }, { status: 404 });
+      }
     }
 
     return NextResponse.json({ success: true });
@@ -101,3 +120,4 @@ export async function DELETE(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: "Có lỗi xảy ra" }, { status: 500 });
   }
 }
+

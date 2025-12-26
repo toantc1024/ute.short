@@ -85,7 +85,7 @@ export default function HomePage() {
 
           {/* Subtitle - Third */}
           <motion.p
-            className="text-lg text-muted-foreground max-w-xl mx-auto"
+            className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto whitespace-nowrap"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3, ease }}

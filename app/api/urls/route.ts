@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth";
-import { createUrl, getUrlsByUserId, validateShortCode as checkShortCodeDB } from "@/lib/services/url.service";
+import { requireAuth, isAdmin } from "@/lib/auth";
+import { createUrl, getUrlsByUserId, getAllUrls, validateShortCode as checkShortCodeDB } from "@/lib/services/url.service";
 import { validateUrl, validateShortCode } from "@/lib/validations/url";
 
 export async function GET() {
   try {
     const user = await requireAuth();
-    const urls = await getUrlsByUserId(user.id);
+    
+    // Admin can see all URLs, regular users see only their own
+    const urls = isAdmin(user) 
+      ? await getAllUrls() 
+      : await getUrlsByUserId(user.id);
     
     return NextResponse.json({ urls });
   } catch (error) {

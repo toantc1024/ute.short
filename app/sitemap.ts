@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXTAUTH_URL || "https://link.hcmute.edu.vn";
+  const rawUrl = process.env.NEXTAUTH_URL || "https://link.hcmute.edu.vn";
+  const baseUrl = rawUrl.replace(/^["']|["']$/g, "");
 
   return [
     {

@@ -29,3 +29,17 @@ export async function requireAuth() {
 
   return user;
 }
+
+export function isAdmin(user: { role: string } | null): boolean {
+  return user?.role === "ADMIN";
+}
+
+export async function requireAdmin() {
+  const user = await requireAuth();
+  
+  if (user.role !== "ADMIN") {
+    throw new Error("Forbidden");
+  }
+
+  return user;
+}

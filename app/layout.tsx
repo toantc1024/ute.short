@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const siteUrl = process.env.NEXTAUTH_URL || "https://link.hcmute.edu.vn";
+// Strip quotes if present (Docker may pass them as part of the value)
+const rawUrl = process.env.NEXTAUTH_URL || "https://link.hcmute.edu.vn";
+const siteUrl = rawUrl.replace(/^["']|["']$/g, "");
 
 export const viewport: Viewport = {
   width: "device-width",

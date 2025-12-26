@@ -11,7 +11,7 @@ import { Suspense } from "react";
 const errorMessages: Record<string, { title: string; description: string }> = {
   AccessDenied: {
     title: "Truy cập bị từ chối",
-    description: "Chỉ tài khoản email @hcmute.edu.vn mới được phép đăng nhập vào hệ thống.",
+    description: "Chỉ tài khoản email @hcmute.edu.vn, @student.hcmute.edu.vn mới được phép đăng nhập vào hệ thống.",
   },
   Configuration: {
     title: "Lỗi cấu hình",

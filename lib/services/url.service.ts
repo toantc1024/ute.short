@@ -94,10 +94,44 @@ export async function getUrlsByUserId(userId: string) {
   });
 }
 
+// Admin: Get all URLs
+export async function getAllUrls() {
+  return prisma.url.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true, image: true },
+      },
+      _count: {
+        select: { visits: true },
+      },
+    },
+  });
+}
+
 export async function getUrlById(id: string, userId: string) {
   return prisma.url.findFirst({
     where: { id, userId },
     include: {
+      visits: {
+        orderBy: { createdAt: "desc" },
+        take: 100,
+      },
+      _count: {
+        select: { visits: true },
+      },
+    },
+  });
+}
+
+// Admin: Get URL by ID without user restriction
+export async function getUrlByIdAdmin(id: string) {
+  return prisma.url.findUnique({
+    where: { id },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
       visits: {
         orderBy: { createdAt: "desc" },
         take: 100,
@@ -125,6 +159,21 @@ export async function updateUrl(id: string, userId: string, data: { originalUrl?
 export async function deleteUrl(id: string, userId: string) {
   return prisma.url.deleteMany({
     where: { id, userId },
+  });
+}
+
+// Admin: Update any URL
+export async function updateUrlAdmin(id: string, data: { originalUrl?: string; shortCode?: string }) {
+  return prisma.url.update({
+    where: { id },
+    data,
+  });
+}
+
+// Admin: Delete any URL
+export async function deleteUrlAdmin(id: string) {
+  return prisma.url.delete({
+    where: { id },
   });
 }
 

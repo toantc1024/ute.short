@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 interface RouteContext {
@@ -11,10 +11,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
     const user = await requireAuth();
     const { id } = await context.params;
 
-    // Verify URL belongs to user
-    const url = await prisma.url.findFirst({
-      where: { id, userId: user.id },
-    });
+    // Admin can view any URL's analytics, regular users can only view their own
+    const url = isAdmin(user)
+      ? await prisma.url.findUnique({ where: { id } })
+      : await prisma.url.findFirst({ where: { id, userId: user.id } });
 
     if (!url) {
       return NextResponse.json({ error: "Không tìm thấy URL" }, { status: 404 });
