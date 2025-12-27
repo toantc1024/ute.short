@@ -62,7 +62,7 @@ export async function GET() {
             color: "#71717a",
           }}
         >
-          Trường Đại học Sư phạm Kỹ thuật TP. Hồ Chí Minh
+          Trường Đại học Công nghệ Kỹ thuật TP. Hồ Chí Minh
         </div>
       </div>
     ),

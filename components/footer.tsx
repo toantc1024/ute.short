@@ -27,7 +27,7 @@ export function Footer({ className, animate = false, animationDelay = 0 }: Foote
         <span className="block sm:inline">Thực hiện bởi Phòng Quản trị Thương hiệu &amp; Truyền thông</span>
         <br className="hidden sm:block" />
         <span className="sm:hidden"> - </span>
-        <span>Trường Đại học Sư phạm Kỹ thuật TP. Hồ Chí Minh</span>
+        <span>Trường Đại học Công nghệ Kỹ thuật TP. Hồ Chí Minh</span>
       </p>
     </div>
   );
