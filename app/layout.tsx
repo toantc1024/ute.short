@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s | HCMUTE S-Link",
   },
   description:
-    "Công cụ rút gọn liên kết và tạo mã QR miễn phí của Trường Đại học Sư phạm Kỹ thuật TP.HCM (HCMUTE). Tạo link ngắn, theo dõi thống kê, và chia sẻ dễ dàng.",
+    "Công cụ rút gọn liên kết và tạo mã QR miễn phí của Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh (HCMUTE). Tạo link ngắn, theo dõi thống kê, và chia sẻ dễ dàng.",
   keywords: [
     "rút gọn link",
     "url shortener",
@@ -32,14 +32,16 @@ export const metadata: Metadata = {
     "short link",
     "tạo mã QR",
     "link ngắn",
-    "Đại học Sư phạm Kỹ thuật",
+    "Đại học Công nghệ Kỹ Thuật",
+    "Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh",
     "SPKT",
+    "Sư phạm Kỹ thuật",
     "short url",
     "link rút gọn miễn phí",
   ],
-  authors: [{ name: "HCMUTE - Trường Đại học Sư phạm Kỹ thuật TP.HCM", url: "https://hcmute.edu.vn" }],
+  authors: [{ name: "HCMUTE - Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh", url: "https://hcmute.edu.vn" }],
   creator: "HCMUTE",
-  publisher: "Trường Đại học Sư phạm Kỹ thuật TP.HCM",
+  publisher: "Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh",
 
   // Canonical & Base URL
   metadataBase: new URL(siteUrl),
@@ -71,7 +73,7 @@ export const metadata: Metadata = {
     siteName: "HCMUTE S-Link",
     title: "HCMUTE S-Link & QR Code - Rút gọn liên kết miễn phí",
     description:
-      "Công cụ rút gọn liên kết và tạo mã QR miễn phí của Trường Đại học Sư phạm Kỹ thuật TP.HCM. Tạo link ngắn, theo dõi thống kê, và chia sẻ dễ dàng.",
+      "Công cụ rút gọn liên kết và tạo mã QR miễn phí của Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh. Tạo link ngắn, theo dõi thống kê, và chia sẻ dễ dàng.",
     images: [
       {
         url: "/og-image.png",
@@ -130,7 +132,7 @@ const jsonLd = {
   "@type": "WebApplication",
   name: "HCMUTE S-Link & QR Code",
   description:
-    "Công cụ rút gọn liên kết và tạo mã QR miễn phí của Trường Đại học Sư phạm Kỹ thuật TP.HCM",
+    "Công cụ rút gọn liên kết và tạo mã QR miễn phí của Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh",
   url: siteUrl,
   applicationCategory: "UtilityApplication",
   operatingSystem: "Any",
@@ -141,8 +143,8 @@ const jsonLd = {
   },
   author: {
     "@type": "EducationalOrganization",
-    name: "Trường Đại học Sư phạm Kỹ thuật TP.HCM",
-    alternateName: "HCMUTE",
+    name: "Trường Đại học Công nghệ Kỹ Thuật TP. Hồ Chí Minh",
+    alternateName: ["HCMUTE", "SPKT"],
     url: "https://hcmute.edu.vn",
   },
   provider: {
